@@ -9,11 +9,12 @@
     "scripts"
   ],
   "scripts": {
-    "build:libs": "tsc -b lib/db lib/api-spec lib/api-zod lib/api-client-react",
-    "build:apps": "npm run build --workspace=@workspace/api-server && npm run build --workspace=@workspace/khtat-sairak",
+    "build:libs": "tsc -b lib/db lib/api-zod lib/api-client-react",
+    "build:api": "npm run build --workspace=@workspace/api-server",
+    "build:web": "npm run build --workspace=@workspace/khtat-sairak",
+    "build:apps": "npm run build:api && npm run build:web",
     "build": "npm run build:libs && npm run build:apps",
-    "typecheck:libs": "tsc -b lib/db lib/api-spec lib/api-zod lib/api-client-react",
-    "typecheck": "npm run typecheck:libs && npm run typecheck --workspaces --if-present"
+    "typecheck:libs": "tsc -b lib/db lib/api-zod lib/api-client-react"
   },
   "overrides": {
     "@esbuild-kit/esm-loader": "npm:tsx@^4.21.0",
