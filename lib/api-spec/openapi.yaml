@@ -1,0 +1,672 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: خطط سيرك API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: auth
+    description: Authentication operations
+  - name: plans
+    description: Trip plans operations
+  - name: stops
+    description: Plan stops operations
+  - name: invites
+    description: Invitation operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterRequest"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Logout
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /plans:
+    get:
+      operationId: getPlans
+      tags: [plans]
+      summary: Get user plans
+      responses:
+        "200":
+          description: List of plans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Plan"
+    post:
+      operationId: createPlan
+      tags: [plans]
+      summary: Create a new plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePlanRequest"
+      responses:
+        "201":
+          description: Plan created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Plan"
+
+  /plans/{id}:
+    get:
+      operationId: getPlan
+      tags: [plans]
+      summary: Get a plan by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Plan details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PlanWithStops"
+        "404":
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    put:
+      operationId: updatePlan
+      tags: [plans]
+      summary: Update a plan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdatePlanRequest"
+      responses:
+        "200":
+          description: Plan updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Plan"
+    delete:
+      operationId: deletePlan
+      tags: [plans]
+      summary: Delete a plan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Plan deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+  /plans/{id}/share:
+    post:
+      operationId: sharePlan
+      tags: [plans]
+      summary: Generate a share link for a plan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Share link generated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ShareResponse"
+
+  /plans/{id}/verify-password:
+    post:
+      operationId: verifyPlanPassword
+      tags: [plans]
+      summary: Verify plan password
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VerifyPasswordRequest"
+      responses:
+        "200":
+          description: Password verified
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+        "403":
+          description: Wrong password
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /invite/{token}:
+    get:
+      operationId: getInvite
+      tags: [invites]
+      summary: Get plan by invite token
+      parameters:
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Plan info for invite
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InviteInfo"
+        "404":
+          description: Invalid invite
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /plans/{id}/stops:
+    get:
+      operationId: getStops
+      tags: [stops]
+      summary: Get stops for a plan
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of stops
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Stop"
+    post:
+      operationId: createStop
+      tags: [stops]
+      summary: Create a stop
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateStopRequest"
+      responses:
+        "201":
+          description: Stop created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stop"
+
+  /plans/{id}/stops/{stopId}:
+    put:
+      operationId: updateStop
+      tags: [stops]
+      summary: Update a stop
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: stopId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateStopRequest"
+      responses:
+        "200":
+          description: Stop updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Stop"
+    delete:
+      operationId: deleteStop
+      tags: [stops]
+      summary: Delete a stop
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: stopId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Stop deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MessageResponse"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    MessageResponse:
+      type: object
+      properties:
+        message:
+          type: string
+      required:
+        - message
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - username
+        - email
+        - createdAt
+
+    RegisterRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - email
+        - password
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        message:
+          type: string
+      required:
+        - user
+        - message
+
+    Plan:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [رحلة, سفر, طلعة, مشوار, مخصص]
+        status:
+          type: string
+          enum: [خاصة, مشتركة, منتهية]
+        hasPassword:
+          type: boolean
+        shareToken:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        scheduledAt:
+          type: string
+          nullable: true
+        userId:
+          type: string
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+      required:
+        - id
+        - title
+        - type
+        - status
+        - hasPassword
+        - userId
+        - createdAt
+        - updatedAt
+
+    Stop:
+      type: object
+      properties:
+        id:
+          type: string
+        planId:
+          type: string
+        name:
+          type: string
+        notes:
+          type: string
+          nullable: true
+        lat:
+          type: number
+          nullable: true
+        lng:
+          type: number
+          nullable: true
+        order:
+          type: integer
+        createdAt:
+          type: string
+      required:
+        - id
+        - planId
+        - name
+        - order
+        - createdAt
+
+    PlanWithStops:
+      allOf:
+        - $ref: "#/components/schemas/Plan"
+        - type: object
+          properties:
+            stops:
+              type: array
+              items:
+                $ref: "#/components/schemas/Stop"
+          required:
+            - stops
+
+    CreatePlanRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [رحلة, سفر, طلعة, مشوار, مخصص]
+        status:
+          type: string
+          enum: [خاصة, مشتركة, منتهية]
+        password:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        scheduledAt:
+          type: string
+          nullable: true
+      required:
+        - title
+        - type
+        - status
+
+    UpdatePlanRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [رحلة, سفر, طلعة, مشوار, مخصص]
+        status:
+          type: string
+          enum: [خاصة, مشتركة, منتهية]
+        password:
+          type: string
+          nullable: true
+        notes:
+          type: string
+          nullable: true
+        scheduledAt:
+          type: string
+          nullable: true
+
+    CreateStopRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        notes:
+          type: string
+          nullable: true
+        lat:
+          type: number
+          nullable: true
+        lng:
+          type: number
+          nullable: true
+        order:
+          type: integer
+      required:
+        - name
+        - order
+
+    UpdateStopRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        notes:
+          type: string
+          nullable: true
+        lat:
+          type: number
+          nullable: true
+        lng:
+          type: number
+          nullable: true
+        order:
+          type: integer
+
+    ShareResponse:
+      type: object
+      properties:
+        shareToken:
+          type: string
+        shareUrl:
+          type: string
+      required:
+        - shareToken
+        - shareUrl
+
+    VerifyPasswordRequest:
+      type: object
+      properties:
+        password:
+          type: string
+      required:
+        - password
+
+    InviteInfo:
+      type: object
+      properties:
+        planId:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        hasPassword:
+          type: boolean
+        ownerName:
+          type: string
+      required:
+        - planId
+        - title
+        - type
+        - hasPassword
+        - ownerName

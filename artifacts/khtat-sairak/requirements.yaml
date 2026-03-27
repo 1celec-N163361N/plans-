@@ -1,0 +1,21 @@
+packages:
+  "framer-motion": "Smooth animations and transitions for luxury feel"
+  "leaflet": "Core map library"
+  "react-leaflet": "React components for Leaflet maps"
+  "@types/leaflet": "TypeScript definitions for Leaflet"
+  "@hello-pangea/dnd": "Drag and drop functionality for reordering stops"
+  "date-fns": "Date manipulation and formatting"
+  "clsx": "Utility for constructing className strings"
+  "tailwind-merge": "Utility for merging tailwind classes without style conflicts"
+  "sonner": "Premium toast notifications"
+  "zustand": "Lightweight state management for theme and UI states"
+
+images:
+  - path: "artifacts/khtat-sairak/public/images/luxury-abstract.png"
+    description: "Dark luxury abstract gradient background with subtle gold and black silk-like waves"
+    aspect_ratio: "16:9"
+
+notes:
+  - Using generated Orval hooks from @workspace/api-client-react
+  - App is fully RTL and Arabic natively
+  - Using Leaflet for maps without API keys requirement
