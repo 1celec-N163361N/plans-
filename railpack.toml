@@ -1,7 +1,9 @@
 [phases.build]
 cmds = [
   "npm install",
-  "BASE_PATH=/ npm run build --workspace=@workspace/khtat-sairak",
+  "npx tsc -b lib/db lib/api-zod lib/api-client-react",
+  "npm run build --workspace=@workspace/api-server",
+  "BASE_PATH=/ npm run build --workspace=@workspace/khtat-sairak"
 ]
 
 [start]
